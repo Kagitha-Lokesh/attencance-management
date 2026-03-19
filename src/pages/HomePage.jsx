@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LogIn, LogOut, Calendar, ClipboardCheck, 
-  Clock, MoreHorizontal, User, Bell, ChevronRight
+  Clock, MoreHorizontal, User, Bell, ChevronRight, Trash2
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
@@ -79,7 +79,7 @@ function HomePage() {
   }, [todayLog, today]);
 
   const handleLogin = async () => {
-    const loginTime = new Date().toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit' });
+    const loginTime = settings?.timeConfig?.loginTime || new Date().toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit' });
     const logData = {
       date: today,
       loginTime,
@@ -93,7 +93,7 @@ function HomePage() {
   };
 
   const handleLogout = async () => {
-    const logoutTime = new Date().toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit' });
+    const logoutTime = settings?.timeConfig?.logoutTime || new Date().toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit' });
     const loginT = new Date(`${today}T${todayLog.loginTime}`);
     const logoutT = new Date(`${today}T${logoutTime}`);
     const hours = ((logoutT - loginT) / 3600000).toFixed(2);
@@ -205,6 +205,21 @@ function HomePage() {
               <ClipboardCheck size={18} /> Daily Report
             </button>
           </div>
+
+          {(todayLog?.loginTime || todayLog?.logoutTime) && (
+            <button 
+              onClick={async () => {
+                if (window.confirm("Testing: Reset today's session?")) {
+                  await deleteAttendanceLog(user.uid, today);
+                  setTodayLog(null);
+                  setElapsedSeconds(0);
+                }
+              }}
+              className="w-full py-3 rounded-2xl bg-red-50 text-red-600 font-black text-[9px] uppercase tracking-widest flex items-center justify-center gap-2 border border-red-100 active:bg-red-100 transition-all opacity-40 hover:opacity-100"
+            >
+              <Trash2 size={14} /> Reset Today (Dev Tool)
+            </button>
+          )}
         </div>
 
         {/* 4. Today's Log */}

@@ -9,7 +9,7 @@ export async function sendAttendanceEmail(settings, type, userName, accessToken)
   const vars = {
     '{{name}}': userName,
     '{{date}}': now.toLocaleDateString('en-IN'),
-    '{{time}}': now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
+    '{{time}}': type === 'login' ? (settings?.timeConfig?.loginTime || '--:--') : (settings?.timeConfig?.logoutTime || '--:--'),
     '{{day}}': now.toLocaleDateString('en-IN', { weekday: 'long' }),
   };
 
