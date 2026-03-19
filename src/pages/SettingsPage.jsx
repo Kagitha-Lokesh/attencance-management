@@ -56,19 +56,22 @@ function SettingsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 pb-24">
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-slate-800">Settings</h1>
+    <div className="flex flex-col min-h-full bg-white pb-20">
+      <header className="px-4 pt-6 pb-2 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-black text-slate-800 tracking-tighter">Settings</h1>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Preferences</p>
+        </div>
         <button 
           onClick={handleSaveAll}
           disabled={loading}
-          className="btn-teal px-6 py-2 rounded-xl text-sm font-bold flex items-center gap-2 shadow-lg shadow-teal-600/20"
+          className="h-12 bg-teal-600 text-white px-6 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 shadow-lg shadow-teal-600/20 active:scale-95 transition-all"
         >
-          {loading ? 'Saving...' : <><Save size={18} /> Save All</>}
+          {loading ? 'Saving...' : <><Save size={18} /> Save</>}
         </button>
       </header>
 
-      <div className="space-y-4">
+      <main className="px-4 mt-4 space-y-4">
         {/* Profile Section */}
         <AccordionSection 
           id="profile" 
@@ -175,12 +178,12 @@ function SettingsPage() {
               </div>
            </div>
         </AccordionSection>
-      </div>
+      </main>
 
-      <div className="mt-12 pt-8 border-t border-slate-200">
+      <div className="p-4 mt-8">
         <button 
           onClick={handleSignOut}
-          className="w-full flex items-center justify-center gap-2 py-4 rounded-2xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-colors"
+          className="h-16 w-full flex items-center justify-center gap-3 rounded-[2rem] bg-red-50 text-red-600 font-black text-sm uppercase tracking-widest active:scale-95 transition-all border border-red-100 shadow-sm"
         >
           <LogOut size={20} /> Sign Out
         </button>

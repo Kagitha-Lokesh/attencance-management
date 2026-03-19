@@ -42,40 +42,37 @@ function AppContent() {
   const showNav = user && profile && setupCompleted;
 
   return (
-    <div className={`relative min-h-screen flex flex-col ${showNav ? 'pb-24' : ''}`}>
-      <div className="flex-1">
-      <Routes>
-        {/* Public Routes */}
-        {!user ? (
-          <>
-            <Route path="/splash" element={<SplashScreen />} />
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="*" element={<Navigate to="/splash" />} />
-          </>
-        ) : (
-          /* Private Routes */
-          <>
-            {!profile ? (
-              <Route path="*" element={<OnboardingPage />} />
-            ) : !setupCompleted ? (
-              <Route path="*" element={<SetupPage />} />
-            ) : (
-              <>
-                <Route path="/home" element={<HomePage />} />
-                <Route path="/calendar" element={<CalendarPage />} />
-                <Route path="/hours" element={<HoursPage />} />
-                <Route path="/settings" element={<SettingsPage />} />
-                <Route path="*" element={<Navigate to="/home" />} />
-              </>
-            )}
-          </>
-        )}
-      </Routes>
+    <div className="mobile-container">
+      <div className="page-content">
+        <Routes>
+          {/* Public Routes */}
+          {!user ? (
+            <>
+              <Route path="/splash" element={<SplashScreen />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="*" element={<Navigate to="/splash" />} />
+            </>
+          ) : (
+            /* Private Routes */
+            <>
+              {!profile ? (
+                <Route path="*" element={<OnboardingPage />} />
+              ) : !setupCompleted ? (
+                <Route path="*" element={<SetupPage />} />
+              ) : (
+                <>
+                  <Route path="/home" element={<HomePage />} />
+                  <Route path="/calendar" element={<CalendarPage />} />
+                  <Route path="/hours" element={<HoursPage />} />
+                  <Route path="/settings" element={<SettingsPage />} />
+                  <Route path="*" element={<Navigate to="/home" />} />
+                </>
+              )}
+            </>
+          )}
+        </Routes>
       </div>
       {showNav && <BottomNav />}
-      <footer className="text-center py-6 text-slate-400 text-[10px] font-bold tracking-widest uppercase">
-        Designed & Developed by Lokesh
-      </footer>
     </div>
   );
 }

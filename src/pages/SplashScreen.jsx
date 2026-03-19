@@ -43,9 +43,9 @@ function SplashScreen() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.5, duration: 0.8 }}
-        className="mt-8 text-3xl font-bold tracking-tight text-center px-4"
+        className="mt-8 text-4xl font-black tracking-tighter text-center px-4"
       >
-        Attendance Management
+        ClockTrack
       </motion.h1>
 
       {/* Subtitle */}
@@ -53,9 +53,9 @@ function SplashScreen() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1, duration: 0.8 }}
-        className="mt-2 text-teal-100/80 font-medium"
+        className="mt-2 text-teal-100/60 font-bold uppercase tracking-widest text-[10px]"
       >
-        Your daily companion
+        Smart Attendance Companion
       </motion.p>
     </div>
   );

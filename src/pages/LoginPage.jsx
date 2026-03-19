@@ -48,55 +48,58 @@ function LoginPage() {
   };
 
   return (
-    <div className="flex-1 bg-slate-50 flex items-center justify-center p-4 py-12">
+    <div className="flex-1 bg-white flex flex-col items-center p-6 pt-12">
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-white rounded-2xl shadow-xl overflow-hidden"
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        className="w-full flex flex-col items-center"
       >
-        <div className="bg-teal-600 p-10 flex flex-col items-center text-center">
-          <div className="w-20 h-20 bg-white/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-white/30 mb-6">
-            <Check size={40} className="text-white" strokeWidth={3} />
-          </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Welcome to WorkTrack</h1>
-          <p className="text-teal-100 text-sm opacity-90">Please sign in with your company Google account to manage your attendance and logs.</p>
+        <div className="w-24 h-24 bg-teal-600 rounded-[2.5rem] flex items-center justify-center shadow-xl shadow-teal-600/20 mb-8">
+          <Check size={48} className="text-white" strokeWidth={4} />
         </div>
+        
+        <h1 className="text-4xl font-black text-slate-800 tracking-tighter mb-2">ClockTrack</h1>
+        <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-12">Attendance Simplified</p>
 
-        <div className="p-8 space-y-6">
+        <div className="w-full space-y-6">
+          <div className="bg-slate-50 p-6 rounded-[2rem] border border-slate-100 mb-8">
+            <p className="text-slate-600 text-sm font-medium leading-relaxed text-center">
+              Sign in with your company Google account to start tracking your work hours.
+            </p>
+          </div>
+
           <AnimatePresence>
             {error && (
               <motion.div
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="p-4 bg-red-50 border-l-4 border-red-500 text-red-700 flex items-start gap-3 rounded"
+                className="p-4 bg-red-50 border border-red-100 text-red-600 flex items-start gap-3 rounded-2xl mb-4"
               >
                 <AlertCircle className="shrink-0 mt-0.5" size={18} />
-                <p className="text-sm">{error}</p>
+                <p className="text-xs font-bold leading-tight">{error}</p>
               </motion.div>
             )}
           </AnimatePresence>
 
-          <div className="py-4">
-            <button
-              type="button"
-              onClick={handleGoogleSignIn}
-              disabled={loading}
-              className="w-full flex items-center justify-center gap-4 py-4 border-2 border-slate-100 rounded-xl hover:bg-slate-50 hover:border-teal-100 transition-all text-slate-700 font-bold text-lg active:scale-[0.98] disabled:opacity-50"
-            >
-              {loading ? (
-                <div className="w-6 h-6 border-3 border-teal-600 border-t-transparent rounded-full animate-spin" />
-              ) : (
-                <>
-                  <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-6 h-6" alt="Google" />
-                  Continue with Google
-                </>
-              )}
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={handleGoogleSignIn}
+            disabled={loading}
+            className="w-full h-16 flex items-center justify-center gap-4 bg-slate-900 text-white rounded-[2rem] shadow-xl active:scale-95 transition-all disabled:opacity-50"
+          >
+            {loading ? (
+              <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
+            ) : (
+              <>
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" className="w-6 h-6" alt="Google" />
+                <span className="font-black text-sm uppercase tracking-widest">Continue with Google</span>
+              </>
+            )}
+          </button>
 
-          <p className="text-center text-xs text-slate-400">
-            Secure authentication powered by Google OAuth
+          <p className="text-center text-[10px] font-bold text-slate-300 uppercase tracking-widest mt-8">
+            Secure Enterprise Login
           </p>
         </div>
       </motion.div>

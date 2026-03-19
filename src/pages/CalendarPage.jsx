@@ -79,19 +79,22 @@ function CalendarPage() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6">
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-slate-800">Attendance</h1>
-        <div className="flex items-center gap-2 bg-white rounded-xl p-1 shadow-sm border border-slate-100">
-          <button onClick={prevMonth} className="p-2 hover:bg-slate-50 text-slate-400"><ChevronLeft size={20} /></button>
-          <span className="px-4 font-bold text-slate-700 min-w-[120px] text-center">{format(currentDate, 'MMMM yyyy')}</span>
-          <button onClick={nextMonth} className="p-2 hover:bg-slate-50 text-slate-400"><ChevronRight size={20} /></button>
+    <div className="flex flex-col min-h-full bg-white pb-20">
+      <header className="px-4 pt-6 pb-2 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-black text-slate-800 tracking-tighter">Attendance</h1>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Monthly Log</p>
+        </div>
+        <div className="flex items-center gap-1 bg-slate-100 rounded-2xl p-1 border border-slate-200 shadow-sm">
+          <button onClick={prevMonth} className="p-2 hover:bg-white rounded-xl transition-all text-slate-400 active:text-teal-600"><ChevronLeft size={20} /></button>
+          <span className="px-2 font-black text-slate-700 text-xs uppercase tracking-tighter min-w-[100px] text-center">{format(currentDate, 'MMM yyyy')}</span>
+          <button onClick={nextMonth} className="p-2 hover:bg-white rounded-xl transition-all text-slate-400 active:text-teal-600"><ChevronRight size={20} /></button>
         </div>
       </header>
 
-      <main className="space-y-6">
+      <main className="px-4 mt-4 space-y-6">
         {/* Calendar Grid */}
-        <div className="bg-white rounded-[2rem] p-6 shadow-xl shadow-slate-200/50 border border-slate-100">
+        <div className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-slate-100 border border-slate-100">
           <div className="grid grid-cols-7 gap-2 mb-4">
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((d, i) => (
               <div key={i} className="text-center text-[10px] font-black text-slate-300 tracking-widest">{d}</div>
@@ -135,18 +138,18 @@ function CalendarPage() {
           <h3 className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center gap-2">
             <Info size={14} /> Month Summary
           </h3>
-          <div className="grid grid-cols-3 gap-4">
-            <div className="bg-teal-50 rounded-2xl p-4 border border-teal-100">
-              <p className="text-[10px] font-bold text-teal-600 uppercase mb-1">Worked</p>
-              <p className="text-2xl font-black text-teal-800">{summary.worked}</p>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="bg-teal-50 rounded-3xl p-4 border border-teal-100 shadow-sm">
+              <p className="text-[9px] font-bold text-teal-600 uppercase tracking-widest mb-1">Worked</p>
+              <p className="text-2xl font-black text-teal-800 tabular-nums">{summary.worked}</p>
             </div>
-            <div className="bg-orange-50 rounded-2xl p-4 border border-orange-100">
-              <p className="text-[10px] font-bold text-orange-600 uppercase mb-1">Leave</p>
-              <p className="text-2xl font-black text-orange-800">{summary.leave}</p>
+            <div className="bg-orange-50 rounded-3xl p-4 border border-orange-100 shadow-sm">
+              <p className="text-[9px] font-bold text-orange-600 uppercase tracking-widest mb-1">Leave</p>
+              <p className="text-2xl font-black text-orange-800 tabular-nums">{summary.leave}</p>
             </div>
-            <div className="bg-red-50 rounded-2xl p-4 border border-red-100">
-              <p className="text-[10px] font-bold text-red-600 uppercase mb-1">Missed</p>
-              <p className="text-2xl font-black text-red-800">{summary.missed}</p>
+            <div className="bg-red-50 rounded-3xl p-4 border border-red-100 shadow-sm">
+              <p className="text-[9px] font-bold text-red-600 uppercase tracking-widest mb-1">Missed</p>
+              <p className="text-2xl font-black text-red-800 tabular-nums">{summary.missed}</p>
             </div>
           </div>
         </section>

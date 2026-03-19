@@ -14,11 +14,21 @@
   }
 }
 
-/* Custom Animations */
-.animate-delay-500 {
-  animation-delay: 500ms;
+/* Hide scrollbars for native app feel */
+::-webkit-scrollbar {
+  display: none;
 }
 
-.animate-delay-1000 {
-  animation-delay: 1000ms;
+* {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.mobile-container {
+  @apply max-w-[420px] mx-auto h-screen bg-white flex flex-col overflow-hidden relative shadow-2xl;
+}
+
+.page-content {
+  @apply flex-1 overflow-y-auto outline-none;
 }

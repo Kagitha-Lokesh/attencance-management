@@ -64,58 +64,61 @@ function HoursPage() {
   const avgHours = daysWorked > 0 ? (totalHours / daysWorked).toFixed(1) : '0';
 
   return (
-    <div className="min-h-screen bg-slate-50 p-6 pb-24">
-      <header className="flex justify-between items-center mb-8">
-        <h1 className="text-2xl font-bold text-slate-800 tracking-tight">Analytics</h1>
-        <div className="flex bg-slate-200 p-1 rounded-xl">
+    <div className="flex flex-col min-h-full bg-white pb-20">
+      <header className="px-4 pt-6 pb-2 flex justify-between items-center">
+        <div>
+          <h1 className="text-2xl font-black text-slate-800 tracking-tighter">Analytics</h1>
+          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">Work Insights</p>
+        </div>
+        <div className="flex bg-slate-100 p-1 rounded-2xl border border-slate-200">
           <button 
             onClick={() => setView('weekly')}
-            className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${view === 'weekly' ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`px-4 py-1.5 text-[10px] font-bold rounded-xl transition-all ${view === 'weekly' ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-400'}`}
           >WEEKLY</button>
           <button 
             onClick={() => setView('monthly')}
-            className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${view === 'monthly' ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
+            className={`px-4 py-1.5 text-[10px] font-bold rounded-xl transition-all ${view === 'monthly' ? 'bg-white text-teal-600 shadow-sm' : 'text-slate-400'}`}
           >MONTHLY</button>
         </div>
       </header>
 
-      <main className="space-y-6">
+      <main className="px-4 mt-4 space-y-6">
         {/* Date Navigator */}
-        <div className="flex items-center justify-between bg-white p-2 rounded-2xl shadow-sm border border-slate-100">
-          <button onClick={prevRange} className="p-2 hover:bg-slate-50 text-slate-400"><ChevronLeft size={20} /></button>
-          <div className="flex items-center gap-2 font-bold text-slate-700">
+        <div className="flex items-center justify-between bg-white p-2 rounded-3xl shadow-sm border border-slate-100">
+          <button onClick={prevRange} className="p-2 hover:bg-slate-50 text-slate-400 active:text-teal-600 transition-all"><ChevronLeft size={20} /></button>
+          <div className="flex items-center gap-2 font-black text-slate-700 uppercase tracking-tighter">
             <Calendar size={16} className="text-teal-600" />
-            <span className="text-sm">
+            <span className="text-xs">
               {view === 'weekly' 
                 ? `${format(range.start, 'MMM dd')} - ${format(range.end, 'MMM dd')}`
                 : format(currentDate, 'MMMM yyyy')
               }
             </span>
           </div>
-          <button onClick={nextRange} className="p-2 hover:bg-slate-50 text-slate-400"><ChevronRight size={20} /></button>
+          <button onClick={nextRange} className="p-2 hover:bg-slate-50 text-slate-400 active:text-teal-600 transition-all"><ChevronRight size={20} /></button>
         </div>
 
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100 shadow-sm">
             <Clock size={16} className="text-teal-600 mb-2" />
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Total</p>
-            <p className="text-xl font-black text-slate-800">{totalHours}h</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Total</p>
+            <p className="text-xl font-black text-slate-800 tabular-nums">{totalHours}h</p>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100 shadow-sm">
             <UserCheck size={16} className="text-teal-600 mb-2" />
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Worked</p>
-            <p className="text-xl font-black text-slate-800">{daysWorked}d</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Worked</p>
+            <p className="text-xl font-black text-slate-800 tabular-nums">{daysWorked}d</p>
           </div>
-          <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm">
+          <div className="bg-slate-50 p-4 rounded-3xl border border-slate-100 shadow-sm">
             <TrendingUp size={16} className="text-teal-600 mb-2" />
-            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Avg</p>
-            <p className="text-xl font-black text-slate-800">{avgHours}h</p>
+            <p className="text-[9px] font-bold text-slate-400 uppercase tracking-widest">Avg</p>
+            <p className="text-xl font-black text-slate-800 tabular-nums">{avgHours}h</p>
           </div>
         </div>
 
         {/* Chart Card */}
-        <div className="bg-white rounded-[2rem] p-6 shadow-xl shadow-slate-200/50 border border-slate-100">
+        <div className="bg-white rounded-[2.5rem] p-6 shadow-xl shadow-slate-100 border border-slate-100">
           <div className="flex justify-between items-center mb-6">
             <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
               <Activity size={18} className="text-teal-600" /> Activity Chart
