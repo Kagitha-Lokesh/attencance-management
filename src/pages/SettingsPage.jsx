@@ -9,7 +9,9 @@ import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
-import { saveSettings, saveUserProfile } from '../services/firestoreService';
+import { saveSettings, saveUserProfile, deleteAttendanceLog, deleteAttendanceRange } from '../services/firestoreService';
+import { db } from '../firebase';
+import { doc, setDoc } from 'firebase/firestore';
 import DatePicker from 'react-datepicker';
 
 function SettingsPage() {
@@ -177,6 +179,57 @@ function SettingsPage() {
                 </div>
               </div>
            </div>
+        </AccordionSection>
+
+        {/* Debug & Testing Section */}
+        <AccordionSection 
+          id="debug" 
+          title="Debug & Testing" 
+          icon={<Trash2 size={18} />} 
+          expanded={expanded === 'debug'} 
+          onToggle={() => toggle('debug')}
+        >
+          <div className="space-y-3">
+            <p className="text-[10px] font-bold text-red-400 uppercase tracking-widest mb-4">Danger Zone (Testing Only)</p>
+            
+            <button 
+              onClick={async () => {
+                if (window.confirm("Reset today's log?")) {
+                  const today = new Date().toISOString().split('T')[0];
+                  await deleteAttendanceLog(user.uid, today);
+                  alert("Today's log cleared.");
+                }
+              }}
+              className="w-full h-12 rounded-2xl bg-slate-50 border border-slate-100 text-slate-600 text-xs font-black uppercase tracking-widest active:bg-slate-100 transition-all flex items-center justify-center gap-2"
+            >
+              Reset Today's Log
+            </button>
+
+            <button 
+              onClick={async () => {
+                if (window.confirm("ARE YOU SURE? This will clear ALL attendance history permanently!")) {
+                  await deleteAttendanceRange(user.uid, '1970-01-01', '2100-12-31');
+                  alert("All history cleared.");
+                }
+              }}
+              className="w-full h-12 rounded-2xl bg-slate-50 border border-slate-100 text-slate-600 text-xs font-black uppercase tracking-widest active:bg-slate-100 transition-all flex items-center justify-center gap-2"
+            >
+              Clear All Logs
+            </button>
+
+            <button 
+              onClick={async () => {
+                if (window.confirm("Restart onboarding? You will be redirected to setup.")) {
+                  const ref = doc(db, 'users', user.uid);
+                  await setDoc(ref, { setupCompleted: false }, { merge: true });
+                  window.location.reload();
+                }
+              }}
+              className="w-full h-12 rounded-2xl bg-red-50 border border-red-100 text-red-600 text-xs font-black uppercase tracking-widest active:bg-red-100 transition-all flex items-center justify-center gap-2"
+            >
+              Reset Onboarding Flow
+            </button>
+          </div>
         </AccordionSection>
       </main>
 
