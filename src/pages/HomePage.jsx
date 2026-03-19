@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   LogIn, LogOut, Calendar, ClipboardCheck, 
-  Clock, MoreHorizontal, User, Bell, ChevronRight
+  Clock, MoreHorizontal, User, Bell, ChevronRight, Trash2
 } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
@@ -205,6 +205,21 @@ function HomePage() {
               <ClipboardCheck size={18} /> Daily Report
             </button>
           </div>
+
+          {(todayLog?.loginTime || todayLog?.logoutTime) && (
+            <button 
+              onClick={async () => {
+                if (window.confirm("Testing: Reset today's session? This will allow you to Login again.")) {
+                  await deleteAttendanceLog(user.uid, today);
+                  setTodayLog(null);
+                  setElapsedSeconds(0);
+                }
+              }}
+              className="w-full py-4 rounded-2xl bg-red-50 text-red-600 font-black text-[10px] uppercase tracking-widest flex items-center justify-center gap-2 border border-red-100 active:bg-red-100 transition-all"
+            >
+              <Trash2 size={16} /> Reset Today's Session (Testing)
+            </button>
+          )}
         </div>
 
         {/* 4. Today's Log */}
