@@ -42,3 +42,20 @@ export async function deleteAttendanceLog(uid, date) {
   const ref = doc(db, 'attendance', uid, 'logs', date);
   await deleteDoc(ref);
 }
+
+export async function deleteAttendanceRange(uid, startDate, endDate) {
+  const { deleteDoc, writeBatch } = await import('firebase/firestore');
+  const start = startDate; // 'YYYY-MM-DD'
+  const end   = endDate;   // 'YYYY-MM-DD'
+  
+  const ref = collection(db, 'attendance', uid, 'logs');
+  const q = query(ref, where('date', '>=', start), where('date', '<=', end));
+  const snap = await getDocs(q);
+  
+  const batch = writeBatch(db);
+  snap.docs.forEach(d => {
+    batch.delete(d.ref);
+  });
+  
+  await batch.commit();
+}
