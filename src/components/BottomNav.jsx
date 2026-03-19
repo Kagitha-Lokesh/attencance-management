@@ -1,4 +1,5 @@
 import { Link, useLocation } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Home, Calendar, Clock, Settings } from 'lucide-react';
 
 function BottomNav() {
