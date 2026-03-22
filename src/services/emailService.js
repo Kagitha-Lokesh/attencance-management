@@ -1,4 +1,5 @@
 import { auth } from '../firebase';
+import { API_URL } from '../config';
 
 export async function sendAttendanceEmail(settings, type, userName, userEmail) {
   const now = new Date();
@@ -31,7 +32,7 @@ export async function sendAttendanceEmail(settings, type, userName, userEmail) {
     subject = subject.replaceAll(k, v);
   });
 
-  const res = await fetch("http://localhost:3001/send-email", {
+  const res = await fetch(`${API_URL}/send-email`, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",

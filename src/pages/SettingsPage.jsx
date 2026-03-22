@@ -12,6 +12,7 @@ import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
 import { saveSettings, saveUserProfile, getUserSettings } from '../services/firestoreService';
 import DatePicker from 'react-datepicker';
+import { API_URL } from '../config';
 
 function SettingsPage() {
   const { user } = useAuthStore();
@@ -72,7 +73,6 @@ function SettingsPage() {
 
   const handleSignOut = async () => {
     await signOut(auth);
-    setAccessToken(null);
     navigate('/login');
   };
 
@@ -86,7 +86,7 @@ function SettingsPage() {
       const idToken = await auth.currentUser?.getIdToken();
       if (!idToken) throw new Error("Authentication required");
 
-      const res = await fetch("http://localhost:3001/auth/google", {
+      const res = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${idToken}`,
@@ -115,7 +115,7 @@ function SettingsPage() {
     try {
       setLoading(true);
       const idToken = await auth.currentUser?.getIdToken();
-      const res = await fetch("http://localhost:3001/disconnect-gmail", {
+      const res = await fetch(`${API_URL}/disconnect-gmail`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${idToken}`

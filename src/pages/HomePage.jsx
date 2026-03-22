@@ -12,6 +12,7 @@ import { sendAttendanceEmail } from '../services/emailService';
 import GoogleFormModal from '../components/GoogleFormModal';
 import MarkLeaveModal from '../components/MarkLeaveModal';
 import GmailConnectModal from '../components/GmailConnectModal';
+import { API_URL } from '../config';
 
 function HomePage() {
   const { user, accessToken } = useAuthStore();
@@ -37,7 +38,7 @@ function HomePage() {
       const idToken = await auth.currentUser?.getIdToken();
       if (!idToken) throw new Error("Authentication required");
 
-      const res = await fetch("http://localhost:3001/auth/google", {
+      const res = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${idToken}`,
