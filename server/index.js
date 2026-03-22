@@ -7,11 +7,7 @@ const crypto = require("crypto");
 require('dotenv').config();
 
 const app = express();
-const FRONTEND_URL = process.env.FRONTEND_URL || "http://localhost:5173";
-
-app.use(cors({
-    origin: [FRONTEND_URL, "http://localhost:5173"]
-}));
+app.use(cors());
 app.use(express.json());
 
 // Initialize Firebase Admin
@@ -68,7 +64,7 @@ function rateLimit(uid) {
 const oauth2Client = new google.auth.OAuth2(
   process.env.GOOGLE_CLIENT_ID,
   process.env.GOOGLE_CLIENT_SECRET,
-  process.env.GOOGLE_REDIRECT_URI || "http://localhost:3001/auth/google/callback"
+  process.env.REDIRECT_URI || "http://localhost:3001/auth/google/callback"
 );
 
 // Middleware to verify Firebase ID Token
@@ -130,7 +126,8 @@ app.get('/auth/google/callback', async (req, res) => {
       console.log(`Saved encrypted refresh token for user: ${uid}`);
     }
 
-    res.redirect(`${FRONTEND_URL}/settings?connected=true`);
+      const frontendUrl = process.env.FRONTEND_URL || "http://localhost:5173";
+      res.redirect(`${frontendUrl}/settings?connected=true`);
   } catch (err) {
     console.error("Error getting tokens:", err);
     res.status(500).send("Authentication failed");
