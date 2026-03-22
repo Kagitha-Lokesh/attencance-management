@@ -184,6 +184,15 @@ function SettingsPage() {
                 className="w-full mt-1 p-3 bg-slate-50 border border-slate-100 rounded-xl outline-none"
               />
             </div>
+            <div>
+              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Gmail Address</label>
+              <input
+                type="email"
+                value={user?.email || ''}
+                readOnly
+                className="w-full mt-1 p-3 bg-slate-50 border border-slate-100 rounded-xl outline-none text-slate-400"
+              />
+            </div>
           </div>
         </AccordionSection>
 
