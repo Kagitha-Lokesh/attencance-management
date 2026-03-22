@@ -12,7 +12,13 @@ app.use(express.json());
 
 // Initialize Firebase Admin
 try {
-  const serviceAccount = require("./serviceAccount.json");
+  let serviceAccount;
+  if (process.env.FIREBASE_SERVICE_ACCOUNT) {
+    serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+  } else {
+    serviceAccount = require("./serviceAccount.json");
+  }
+
   if (!admin.apps.length) {
     admin.initializeApp({
       credential: admin.credential.cert({
@@ -22,8 +28,8 @@ try {
     });
   }
 } catch (err) {
-  console.error("FIREBASE ADMIN ERROR: Service account might be invalid. Backend functionality will be limited.");
-  console.error(err.message);
+  console.error("FIREBASE ADMIN ERROR:", err.message);
+  console.error("Backend functionality will be limited.");
 }
 
 const db = admin.apps.length ? admin.firestore() : null;
