@@ -82,11 +82,14 @@ function LoginPage() {
         animate={{ opacity: 1, y: 0 }}
         className="w-full max-w-sm flex flex-col items-center"
       >
-        <div className="w-20 h-20 bg-teal-600 rounded-3xl flex items-center justify-center shadow-xl shadow-teal-600/20 mb-6">
-          <Check size={40} className="text-white" strokeWidth={4} />
-        </div>
-        
-        <h1 className="text-3xl font-black text-slate-800 tracking-tighter mb-1">ClockTrack</h1>
+        <div className="flex items-center gap-3 mb-2">
+            <div className="w-10 h-10 bg-teal-600 rounded-2xl flex items-center justify-center shadow-lg shadow-teal-600/20">
+              <div className="w-5 h-5 border-2 border-white rounded-full flex items-center justify-center">
+                <div className="w-2 h-2 bg-white rounded-full translate-x-0.5" />
+              </div>
+            </div>
+            <h2 className="text-2xl font-black text-slate-800 tracking-tighter">LogTracker</h2>
+          </div>
         <p className="text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-8">Attendance Simplified</p>
 
         <form onSubmit={handleAuth} className="w-full space-y-4">

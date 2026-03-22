@@ -45,7 +45,7 @@ function SplashScreen() {
         transition={{ delay: 0.5, duration: 0.8 }}
         className="mt-8 text-4xl font-black tracking-tighter text-center px-4"
       >
-        ClockTrack
+        LogTracker
       </motion.h1>
 
       {/* Subtitle */}

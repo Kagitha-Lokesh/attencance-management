@@ -9,8 +9,8 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       manifest: {
-        name: 'ClockTrack',
-        short_name: 'ClockTrack',
+        name: 'LogTracker',
+        short_name: 'LogTracker',
         theme_color: '#0D9488',
         background_color: '#0D9488',
         display: 'standalone',
