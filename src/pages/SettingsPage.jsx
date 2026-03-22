@@ -1,28 +1,51 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   User, Mail, Clock, FileText, Calendar, 
-  ChevronDown, ChevronUp, Save, LogOut, Trash2, Plus 
+  ChevronDown, ChevronUp, Save, LogOut, Trash2, Plus,
+  CheckCircle2, AlertCircle
 } from 'lucide-react';
 import { auth } from '../firebase';
 import { signOut } from 'firebase/auth';
 import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
-import { saveSettings, saveUserProfile } from '../services/firestoreService';
+import { saveSettings, saveUserProfile, getUserSettings } from '../services/firestoreService';
 import DatePicker from 'react-datepicker';
 
 function SettingsPage() {
-  const { user } = useAuthStore();
+  const { user, setAccessToken } = useAuthStore();
   const { profile, settings, setSettings, setProfile } = useUserStore();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [expanded, setExpanded] = useState('profile');
   const [loading, setLoading] = useState(false);
   const [localSettings, setLocalSettings] = useState(settings);
   const [localProfile, setLocalProfile] = useState(profile);
 
+  // Handle OAuth Callback (Secure version)
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const connected = params.get('connected');
+
+    if (connected === 'true' && user) {
+      // Re-fetch settings from Firestore because the backend 
+      // just updated the refreshToken there.
+      getUserSettings(user.uid).then((newSettings) => {
+        if (newSettings) {
+          setSettings(newSettings);
+          setLocalSettings(newSettings);
+          // Clean URL
+          navigate('/settings', { replace: true });
+          alert('Gmail connected successfully!');
+        }
+      });
+    }
+  }, [location, user, navigate, setSettings, setLocalSettings]);
+
   const toggle = (id) => setExpanded(expanded === id ? null : id);
+
 
   const handleSaveAll = async () => {
     setLoading(true);
@@ -32,9 +55,11 @@ function SettingsPage() {
       setProfile(localProfile);
 
       // Save Sections
-      const sections = ['loginEmail', 'logoutEmail', 'timeConfig', 'googleForm', 'workWeek', 'holidays', 'leaves'];
+      const sections = ['loginEmail', 'logoutEmail', 'timeConfig', 'googleForm', 'workWeek', 'holidays', 'leaves', 'refreshToken'];
       for (const section of sections) {
-        await saveSettings(user.uid, section, localSettings[section]);
+        if (localSettings[section] !== undefined) {
+          await saveSettings(user.uid, section, localSettings[section]);
+        }
       }
       setSettings(localSettings);
       alert('Settings saved successfully!');
@@ -47,13 +72,73 @@ function SettingsPage() {
 
   const handleSignOut = async () => {
     await signOut(auth);
-    useAuthStore.getState().setAccessToken(null);
+    setAccessToken(null);
     navigate('/login');
   };
 
   const updateSection = (section, data) => {
     setLocalSettings(prev => ({ ...prev, [section]: { ...prev[section], ...data } }));
   };
+
+  const handleConnectGmail = async () => {
+    try {
+      setLoading(true);
+      const idToken = await auth.currentUser?.getIdToken();
+      if (!idToken) throw new Error("Authentication required");
+
+      const res = await fetch("http://localhost:3001/auth/google", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${idToken}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to get auth URL");
+      }
+      
+      const { url } = await res.json();
+
+      window.open(url, "_self");
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDisconnectGmail = async () => {
+    if (!confirm("Are you sure you want to disconnect your Gmail account? Automated emails will stop.")) return;
+    
+    try {
+      setLoading(true);
+      const idToken = await auth.currentUser?.getIdToken();
+      const res = await fetch("http://localhost:3001/disconnect-gmail", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${idToken}`
+        }
+      });
+
+      if (res.ok) {
+        setSettings({ ...settings, refreshToken: null });
+        setLocalSettings({ ...localSettings, refreshToken: null });
+        alert("Gmail disconnected successfully.");
+      } else {
+        throw new Error("Failed to disconnect");
+      }
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+
+  const isGmailConnected = !!localSettings?.refreshToken;
 
   return (
     <div className="flex flex-col min-h-full bg-white pb-20">
@@ -111,12 +196,69 @@ function SettingsPage() {
           </div>
         </AccordionSection>
 
+        {/* Gmail Connection Section */}
+        <AccordionSection 
+          id="gmail" 
+          title="Gmail Connection" 
+          icon={<Mail size={18} />} 
+          expanded={expanded === 'gmail'} 
+          onToggle={() => toggle('gmail')}
+        >
+          <div className="space-y-4">
+            <div className={`p-4 rounded-2xl border flex items-center gap-3 ${isGmailConnected ? 'bg-teal-50 border-teal-100' : 'bg-red-50 border-red-100'}`}>
+              {isGmailConnected ? (
+                <CheckCircle2 size={24} className="text-teal-600" />
+              ) : (
+                <AlertCircle size={24} className="text-red-600" />
+              )}
+              <div>
+                <p className={`text-sm font-bold ${isGmailConnected ? 'text-teal-800' : 'text-red-800'}`}>
+                  {isGmailConnected ? 'Gmail Connected' : 'Gmail Not Connected'}
+                </p>
+                <p className={`text-[10px] ${isGmailConnected ? 'text-teal-600' : 'text-red-600'}`}>
+                  {isGmailConnected 
+                    ? 'Your account is ready to send automated emails.' 
+                    : 'Connect your Google account to enable automated attendance emails.'
+                  }
+                </p>
+              </div>
+            </div>
+            
+            {isGmailConnected ? (
+              <button 
+                onClick={handleDisconnectGmail}
+                className="w-full h-12 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 bg-red-50 text-red-600 border border-red-100"
+              >
+                <Trash2 size={16} />
+                Disconnect Gmail
+              </button>
+            ) : (
+              <button 
+                onClick={handleConnectGmail}
+                className="w-full h-12 rounded-xl text-xs font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all active:scale-95 bg-slate-900 text-white shadow-lg shadow-slate-900/10"
+              >
+                <Mail size={16} />
+                Connect Gmail Account
+              </button>
+            )}
+            
+            {isGmailConnected && (
+              <p className="text-[9px] text-center text-slate-400">
+                Note: Refresh token is stored securely with encryption.
+                <br />
+                <button onClick={handleConnectGmail} className="underline">Reconnect</button> if emails are failing.
+              </p>
+            )}
+
+          </div>
+        </AccordionSection>
+
         {/* Email Sections */}
-        <AccordionSection id="loginEmail" title="Login Email" icon={<Mail size={18} />} expanded={expanded === 'loginEmail'} onToggle={() => toggle('loginEmail')}>
+        <AccordionSection id="loginEmail" title="Login Email Template" icon={<Mail size={18} />} expanded={expanded === 'loginEmail'} onToggle={() => toggle('loginEmail')}>
           <EmailConfig data={localSettings.loginEmail} update={d => updateSection('loginEmail', d)} />
         </AccordionSection>
         
-        <AccordionSection id="logoutEmail" title="Logout Email" icon={<Mail size={18} />} expanded={expanded === 'logoutEmail'} onToggle={() => toggle('logoutEmail')}>
+        <AccordionSection id="logoutEmail" title="Logout Email Template" icon={<Mail size={18} />} expanded={expanded === 'logoutEmail'} onToggle={() => toggle('logoutEmail')}>
           <EmailConfig data={localSettings.logoutEmail} update={d => updateSection('logoutEmail', d)} />
         </AccordionSection>
 
@@ -241,3 +383,4 @@ const EmailConfig = ({ data, update }) => (
 );
 
 export default SettingsPage;
+

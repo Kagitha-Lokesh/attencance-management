@@ -5,10 +5,15 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  const { accessToken, to, subject, body } = req.body;
+  const { to, subject, body, refreshToken } = req.body;
 
-  const oauth2Client = new google.auth.OAuth2();
-  oauth2Client.setCredentials({ access_token: accessToken });
+  const oauth2Client = new google.auth.OAuth2(
+    process.env.GOOGLE_CLIENT_ID,
+    process.env.GOOGLE_CLIENT_SECRET,
+    "http://localhost:3001/auth/google/callback"
+  );
+
+  oauth2Client.setCredentials({ refresh_token: refreshToken });
   const gmail = google.gmail({ version: 'v1', auth: oauth2Client });
 
   try {
@@ -39,3 +44,4 @@ export default async function handler(req, res) {
     res.status(500).json({ success: false, error: err.message });
   }
 }
+

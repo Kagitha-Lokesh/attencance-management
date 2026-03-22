@@ -1,19 +1,27 @@
-export async function sendAttendanceEmail(settings, type, userName, accessToken) {
-  console.log("SENDING EMAIL WITH TOKEN:", accessToken);
-  if (!accessToken) {
-    console.error("ERROR: No accessToken provided to sendAttendanceEmail!");
-    throw new Error("You must be logged in with Google to send emails.");
-  }
+import { auth } from '../firebase';
+
+export async function sendAttendanceEmail(settings, type, userName, userEmail) {
   const now = new Date();
+  const idToken = await auth.currentUser?.getIdToken();
+
+  if (!idToken) throw new Error("User NOT authenticated");
 
   const vars = {
     '{{name}}': userName,
     '{{date}}': now.toLocaleDateString('en-IN'),
-    '{{time}}': type === 'login' ? (settings?.timeConfig?.loginTime || '--:--') : (settings?.timeConfig?.logoutTime || '--:--'),
+    '{{time}}': now.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' }),
     '{{day}}': now.toLocaleDateString('en-IN', { weekday: 'long' }),
   };
 
   const cfg = type === 'login' ? settings.loginEmail : settings.logoutEmail;
+  // Note: refreshToken is now handled entirely on the backend for security.
+  // We just check if the user HAS connected Gmail via the backend.
+  const isGmailConnected = !!settings.refreshToken;
+
+  if (!isGmailConnected) {
+    console.warn("Gmail not connected. Email skipped.");
+    return { success: false, error: "Gmail not connected" };
+  }
 
   let body = cfg.body;
   let subject = cfg.subject;
@@ -23,23 +31,31 @@ export async function sendAttendanceEmail(settings, type, userName, accessToken)
     subject = subject.replaceAll(k, v);
   });
 
-  const res = await fetch('/api/send-email', {
-    method: 'POST',
+  const res = await fetch("http://localhost:3001/send-email", {
+    method: "POST",
     headers: {
-      'Content-Type': 'application/json',
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${idToken}`
     },
     body: JSON.stringify({
-      accessToken,
       to: cfg.recipients,
-      subject,
-      body,
+      subject: subject,
+      body: body
     }),
   });
 
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.error || 'Failed to send email');
+    console.error("Backend Email Error:", err);
+    
+    if (err.error === "GMAIL_RECONNECT_REQUIRED") {
+      alert("Gmail connection expired or revoked. Please reconnect in Settings.");
+      // Optional: window.location.href = "/settings";
+    }
+    
+    throw new Error(err.error || "Email send failed");
   }
 
   return res.json();
 }
+

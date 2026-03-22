@@ -89,7 +89,7 @@ function HomePage() {
     };
     await saveAttendanceLog(user.uid, today, logData);
     setTodayLog(logData);
-    await sendAttendanceEmail(settings, 'login', profile.fullName, accessToken);
+    await sendAttendanceEmail(settings, 'login', profile.fullName, user.email);
   };
 
   const handleLogout = async () => {
@@ -106,7 +106,7 @@ function HomePage() {
     };
     await saveAttendanceLog(user.uid, today, logData);
     setTodayLog(logData);
-    await sendAttendanceEmail(settings, 'logout', profile.fullName, accessToken);
+    await sendAttendanceEmail(settings, 'logout', profile.fullName, user.email);
   };
 
   // Determine Today's Status

@@ -1,5 +1,7 @@
 # node_modules
 node_modules/
+**/node_modules/
+
 dist/
 dist-ssr/
 *.local
@@ -30,3 +32,12 @@ pubsub-debug.log*
 .env.development.local
 .env.test.local
 .env.production.local
+
+# Sensitive Files
+serviceAccount.json
+server/serviceAccount.json
+server/.env
+server/error.log
+server/node_modules
+admin-sdk-key.json
+
