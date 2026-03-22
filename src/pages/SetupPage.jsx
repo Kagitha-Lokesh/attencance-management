@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  Mail, Clock, Globe, Calendar, FileText, ChevronRight, 
-  ChevronLeft, Plus, Trash2, Upload, CheckCircle, Info 
+import {
+  Mail, Clock, Globe, Calendar, FileText, ChevronRight,
+  ChevronLeft, Plus, Trash2, Upload, CheckCircle, Info
 } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import "react-datepicker/dist/react-datepicker.css";
@@ -14,14 +14,14 @@ import { useUserStore } from '../store/userStore';
 import { saveSettings } from '../services/firestoreService';
 import { auth } from '../firebase';
 import GmailConnectModal from '../components/GmailConnectModal';
+import { API_URL } from '../config';
 
 function SetupPage() {
-
   const [step, setStep] = useState(1);
   const totalSteps = 6;
   const navigate = useNavigate();
   const { user } = useAuthStore();
-  const { setSettings } = useUserStore();
+  const { profile, setSettings } = useUserStore();
 
   const [formData, setFormData] = useState({
     loginEmail: { recipients: '', subject: 'Attendance Login - {{date}}', body: 'Hi Team,\n\n{{name}} has logged in at {{time}} on {{day}}, {{date}}.' },
@@ -49,7 +49,7 @@ function SetupPage() {
       for (const section of sections) {
         await saveSettings(user.uid, section, formData[section]);
       }
-      setSettings({ ...formData, setupCompleted: true });
+      setSettings({ ...formData, profile, setupCompleted: true });
       setShowConnectModal(true);
     } catch (err) {
       alert(err.message);
@@ -64,7 +64,7 @@ function SetupPage() {
       const idToken = await auth.currentUser?.getIdToken();
       if (!idToken) throw new Error("Authentication required");
 
-      const res = await fetch("http://localhost:3001/auth/google", {
+      const res = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
         headers: {
           "Authorization": `Bearer ${idToken}`,
@@ -76,7 +76,7 @@ function SetupPage() {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to get auth URL");
       }
-      
+
       const { url } = await res.json();
       window.open(url, "_self");
     } catch (err) {
@@ -111,7 +111,7 @@ function SetupPage() {
             <span>{Math.round((step / totalSteps) * 100)}% Complete</span>
           </div>
           <div className="h-2.5 w-full bg-slate-200 rounded-full overflow-hidden">
-            <motion.div 
+            <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${(step / totalSteps) * 100}%` }}
               className="h-full bg-teal-600"
@@ -120,7 +120,7 @@ function SetupPage() {
         </div>
 
         {/* Card Content */}
-        <motion.div 
+        <motion.div
           key={step}
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
@@ -139,7 +139,7 @@ function SetupPage() {
             >
               <ChevronLeft size={20} /> Back
             </button>
-            
+
             {step < totalSteps ? (
               <button
                 onClick={nextStep}
@@ -161,7 +161,7 @@ function SetupPage() {
       </div>
 
       {/* Gmail Connection Modal */}
-      <GmailConnectModal 
+      <GmailConnectModal
         isOpen={showConnectModal}
         onClose={() => navigate('/home')}
         onConnect={handleConnectGmail}
@@ -182,7 +182,7 @@ const StepEmail = ({ section, title, data, update }) => (
       </div>
       <h2 className="text-2xl font-bold text-slate-800">{title}</h2>
     </div>
-    
+
     <div>
       <label className="block text-sm font-semibold text-slate-700 mb-1.5">Recipients</label>
       <textarea
@@ -381,9 +381,8 @@ const StepWorkWeek = ({ data, update }) => {
             <button
               key={day}
               onClick={() => toggleDay(i)}
-              className={`flex-1 py-3 rounded-xl font-bold transition-all border-2 ${
-                data.workWeek.includes(i) ? 'bg-teal-600 border-teal-600 text-white shadow-lg shadow-teal-600/20' : 'bg-white border-slate-100 text-slate-400 hover:border-teal-200'
-              }`}
+              className={`flex-1 py-3 rounded-xl font-bold transition-all border-2 ${data.workWeek.includes(i) ? 'bg-teal-600 border-teal-600 text-white shadow-lg shadow-teal-600/20' : 'bg-white border-slate-100 text-slate-400 hover:border-teal-200'
+                }`}
             >
               {day}
             </button>

@@ -47,12 +47,12 @@ export async function sendAttendanceEmail(settings, type, userName, userEmail) {
   if (!res.ok) {
     const err = await res.json();
     console.error("Backend Email Error:", err);
-    
+
     if (err.error === "GMAIL_RECONNECT_REQUIRED") {
       alert("Gmail connection expired or revoked. Please reconnect in Settings.");
       // Optional: window.location.href = "/settings";
     }
-    
+
     throw new Error(err.error || "Email send failed");
   }
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { 
-  LogIn, LogOut, Calendar, ClipboardCheck, 
+import {
+  LogIn, LogOut, Calendar, ClipboardCheck,
   Clock, MoreHorizontal, User, Bell, ChevronRight, Trash2
 } from 'lucide-react';
 import { auth } from '../firebase';
@@ -26,7 +26,7 @@ function HomePage() {
 
   const today = new Date().toISOString().split('T')[0];
   const now = new Date();
-  
+
   // Format Date for Header
   const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
   const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
@@ -49,7 +49,7 @@ function HomePage() {
         const errorData = await res.json().catch(() => ({}));
         throw new Error(errorData.error || "Failed to get auth URL");
       }
-      
+
       const { url } = await res.json();
       window.open(url, "_self");
     } catch (err) {
@@ -81,13 +81,13 @@ function HomePage() {
 
   function startTimer(loginTime) {
     if (timerRef.current) clearInterval(timerRef.current);
-    
+
     // Calculate elapsed from start of day
     const loginMs = new Date(`1970-01-01T${loginTime}:00`).getTime();
-    
+
     timerRef.current = setInterval(() => {
       const now = new Date();
-      const nowMs = now.getHours()*3600000 + now.getMinutes()*60000 + now.getSeconds()*1000;
+      const nowMs = now.getHours() * 3600000 + now.getMinutes() * 60000 + now.getSeconds() * 1000;
       setElapsedSeconds(Math.floor((nowMs - loginMs) / 1000));
     }, 1000);
   }
@@ -97,7 +97,7 @@ function HomePage() {
     const h = Math.floor(secs / 3600);
     const m = Math.floor((secs % 3600) / 60);
     const s = secs % 60;
-    return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+    return `${String(h).padStart(2, '0')}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
   }
 
   // Timer Logic
@@ -117,7 +117,7 @@ function HomePage() {
 
   const handleLogin = async () => {
     if (!checkGmailConnection()) return;
-    
+
     const loginTime = settings?.timeConfig?.loginTime || new Date().toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit' });
     const logData = {
       date: today,
@@ -138,7 +138,7 @@ function HomePage() {
     const loginT = new Date(`${today}T${todayLog.loginTime}`);
     const logoutT = new Date(`${today}T${logoutTime}`);
     const hours = ((logoutT - loginT) / 3600000).toFixed(2);
-    
+
     const logData = {
       ...todayLog,
       logoutTime,
@@ -170,7 +170,7 @@ function HomePage() {
 
       <main className="px-4 mt-4 space-y-6">
         {/* 2. Status Card */}
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           className="bg-teal-600 rounded-[2.5rem] p-6 text-white shadow-xl shadow-teal-600/30 relative overflow-hidden"
@@ -208,23 +208,21 @@ function HomePage() {
         {/* 3. Actions */}
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <button 
+            <button
               onClick={handleLogin}
               disabled={todayLog?.loginTime || isHoliday || isLeave}
-              className={`h-24 rounded-3xl flex flex-col items-center justify-center gap-2 font-black text-sm transition-all duration-300 shadow-md ${
-                todayLog?.loginTime ? 'bg-slate-50 text-slate-300 border border-slate-100 shadow-none' : 'bg-teal-600 text-white active:scale-95'
-              }`}
+              className={`h-24 rounded-3xl flex flex-col items-center justify-center gap-2 font-black text-sm transition-all duration-300 shadow-md ${todayLog?.loginTime ? 'bg-slate-50 text-slate-300 border border-slate-100 shadow-none' : 'bg-teal-600 text-white active:scale-95'
+                }`}
             >
               <LogIn size={24} />
               <span>Login Now</span>
             </button>
 
-            <button 
+            <button
               onClick={handleLogout}
               disabled={!todayLog?.loginTime || todayLog?.logoutTime}
-              className={`h-24 rounded-3xl flex flex-col items-center justify-center gap-2 font-black text-sm transition-all duration-300 shadow-md ${
-                !todayLog?.loginTime || todayLog?.logoutTime ? 'bg-slate-50 text-slate-300 border border-slate-100 shadow-none' : 'bg-slate-800 text-white active:scale-95'
-              }`}
+              className={`h-24 rounded-3xl flex flex-col items-center justify-center gap-2 font-black text-sm transition-all duration-300 shadow-md ${!todayLog?.loginTime || todayLog?.logoutTime ? 'bg-slate-50 text-slate-300 border border-slate-100 shadow-none' : 'bg-slate-800 text-white active:scale-95'
+                }`}
             >
               <LogOut size={24} />
               <span>Logout Now</span>
@@ -232,13 +230,13 @@ function HomePage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <button 
+            <button
               onClick={() => setIsLeaveModalOpen(true)}
               className="py-4 rounded-2xl bg-slate-100 text-slate-700 font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all shadow-sm"
             >
               <Calendar size={18} /> Mark Leave
             </button>
-            <button 
+            <button
               onClick={() => setIsModalOpen(true)}
               className="py-4 rounded-2xl bg-teal-50 text-teal-700 font-bold text-sm flex items-center justify-center gap-2 active:scale-95 transition-all border border-teal-100 shadow-sm"
             >
@@ -247,7 +245,7 @@ function HomePage() {
           </div>
 
           {(todayLog?.loginTime || todayLog?.logoutTime) && (
-            <button 
+            <button
               onClick={async () => {
                 if (window.confirm("Testing: Reset today's session?")) {
                   await deleteAttendanceLog(user.uid, today);
@@ -277,7 +275,7 @@ function HomePage() {
             ) : (
               <>
                 {todayLog.loginTime && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     className="flex items-center gap-4 p-4 bg-white rounded-[2rem] shadow-sm border border-slate-100"
@@ -291,7 +289,7 @@ function HomePage() {
                   </motion.div>
                 )}
                 {todayLog.logoutTime && (
-                  <motion.div 
+                  <motion.div
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.1 }}
@@ -311,15 +309,15 @@ function HomePage() {
         </section>
       </main>
 
-      <GoogleFormModal 
-        isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)} 
+      <GoogleFormModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
         userProfile={profile}
         config={settings?.googleForm}
       />
 
-      <MarkLeaveModal 
-        isOpen={isLeaveModalOpen} 
+      <MarkLeaveModal
+        isOpen={isLeaveModalOpen}
         onClose={() => setIsLeaveModalOpen(false)}
         onFinish={() => {
           const fetchLog = async () => {
@@ -333,7 +331,7 @@ function HomePage() {
         }}
       />
 
-      <GmailConnectModal 
+      <GmailConnectModal
         isOpen={isGmailModalOpen}
         onClose={() => setIsGmailModalOpen(false)}
         onConnect={handleConnectGmail}
