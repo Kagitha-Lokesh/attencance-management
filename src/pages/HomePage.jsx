@@ -4,12 +4,14 @@ import {
   LogIn, LogOut, Calendar, ClipboardCheck, 
   Clock, MoreHorizontal, User, Bell, ChevronRight, Trash2
 } from 'lucide-react';
+import { auth } from '../firebase';
 import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
 import { saveAttendanceLog, getAttendanceLogs, deleteAttendanceLog } from '../services/firestoreService';
 import { sendAttendanceEmail } from '../services/emailService';
 import GoogleFormModal from '../components/GoogleFormModal';
 import MarkLeaveModal from '../components/MarkLeaveModal';
+import GmailConnectModal from '../components/GmailConnectModal';
 
 function HomePage() {
   const { user, accessToken } = useAuthStore();
@@ -18,6 +20,8 @@ function HomePage() {
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+  const [isGmailModalOpen, setIsGmailModalOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
   const timerRef = useRef(null);
 
   const today = new Date().toISOString().split('T')[0];
@@ -26,6 +30,42 @@ function HomePage() {
   // Format Date for Header
   const dayName = now.toLocaleDateString('en-US', { weekday: 'long' }).toUpperCase();
   const dateStr = now.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
+
+  const handleConnectGmail = async () => {
+    try {
+      setLoading(true);
+      const idToken = await auth.currentUser?.getIdToken();
+      if (!idToken) throw new Error("Authentication required");
+
+      const res = await fetch("http://localhost:3001/auth/google", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${idToken}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to get auth URL");
+      }
+      
+      const { url } = await res.json();
+      window.open(url, "_self");
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const checkGmailConnection = () => {
+    if (!settings?.refreshToken) {
+      setIsGmailModalOpen(true);
+      return false;
+    }
+    return true;
+  };
 
   useEffect(() => {
     // Fetch today's log
@@ -42,8 +82,7 @@ function HomePage() {
   function startTimer(loginTime) {
     if (timerRef.current) clearInterval(timerRef.current);
     
-    // Calculate elapsed from start of day if using the user's snippet logic
-    // but the user's snippet uses 1970-01-01T... so let's stick to their math
+    // Calculate elapsed from start of day
     const loginMs = new Date(`1970-01-01T${loginTime}:00`).getTime();
     
     timerRef.current = setInterval(() => {
@@ -68,8 +107,6 @@ function HomePage() {
     } else {
       clearInterval(timerRef.current);
       if (todayLog?.hoursWorked) {
-        // Convert decimal hours string to seconds if needed, or just display
-        // The user's formatTime expects seconds.
         setElapsedSeconds(Math.floor(parseFloat(todayLog.hoursWorked) * 3600));
       } else {
         setElapsedSeconds(0);
@@ -79,6 +116,8 @@ function HomePage() {
   }, [todayLog, today]);
 
   const handleLogin = async () => {
+    if (!checkGmailConnection()) return;
+    
     const loginTime = settings?.timeConfig?.loginTime || new Date().toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit' });
     const logData = {
       date: today,
@@ -93,6 +132,8 @@ function HomePage() {
   };
 
   const handleLogout = async () => {
+    if (!checkGmailConnection()) return;
+
     const logoutTime = settings?.timeConfig?.logoutTime || new Date().toLocaleTimeString('en-IN', { hour12: false, hour: '2-digit', minute: '2-digit' });
     const loginT = new Date(`${today}T${todayLog.loginTime}`);
     const logoutT = new Date(`${today}T${logoutTime}`);
@@ -160,7 +201,6 @@ function HomePage() {
             </div>
           </div>
 
-          {/* Decorative Elements */}
           <div className="absolute -right-10 -top-10 w-40 h-40 bg-white/10 rounded-full" />
           <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-white/5 rounded-full" />
         </motion.div>
@@ -271,23 +311,17 @@ function HomePage() {
         </section>
       </main>
 
-      {/* Nav Placeholder - BottomNav will go here */}
-
-      {/* Google Form Modal */}
-      {/* Google Form Modal */}
       <GoogleFormModal 
         isOpen={isModalOpen} 
         onClose={() => setIsModalOpen(false)} 
         userProfile={profile}
-        config={settings.googleForm}
+        config={settings?.googleForm}
       />
 
-      {/* Mark Leave Modal */}
       <MarkLeaveModal 
         isOpen={isLeaveModalOpen} 
         onClose={() => setIsLeaveModalOpen(false)}
         onFinish={() => {
-          // Re-fetch today's log to update UI
           const fetchLog = async () => {
             const year = now.getFullYear();
             const month = now.getMonth() + 1;
@@ -297,6 +331,13 @@ function HomePage() {
           };
           fetchLog();
         }}
+      />
+
+      <GmailConnectModal 
+        isOpen={isGmailModalOpen}
+        onClose={() => setIsGmailModalOpen(false)}
+        onConnect={handleConnectGmail}
+        loading={loading}
       />
     </div>
   );

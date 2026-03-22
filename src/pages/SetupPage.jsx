@@ -12,8 +12,11 @@ import * as XLSX from 'xlsx';
 import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
 import { saveSettings } from '../services/firestoreService';
+import { auth } from '../firebase';
+import GmailConnectModal from '../components/GmailConnectModal';
 
 function SetupPage() {
+
   const [step, setStep] = useState(1);
   const totalSteps = 6;
   const navigate = useNavigate();
@@ -31,6 +34,7 @@ function SetupPage() {
   });
 
   const [loading, setLoading] = useState(false);
+  const [showConnectModal, setShowConnectModal] = useState(false);
 
   // Helper to update deeply nested state
   const updateSection = (section, data) => {
@@ -46,7 +50,35 @@ function SetupPage() {
         await saveSettings(user.uid, section, formData[section]);
       }
       setSettings({ ...formData, setupCompleted: true });
-      navigate('/home');
+      setShowConnectModal(true);
+    } catch (err) {
+      alert(err.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleConnectGmail = async () => {
+    try {
+      setLoading(true);
+      const idToken = await auth.currentUser?.getIdToken();
+      if (!idToken) throw new Error("Authentication required");
+
+      const res = await fetch("http://localhost:3001/auth/google", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${idToken}`,
+          "Content-Type": "application/json"
+        }
+      });
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || "Failed to get auth URL");
+      }
+      
+      const { url } = await res.json();
+      window.open(url, "_self");
     } catch (err) {
       alert(err.message);
     } finally {
@@ -70,7 +102,7 @@ function SetupPage() {
   };
 
   return (
-    <div className="flex-1 bg-slate-50 py-12 px-4">
+    <div className="flex-1 bg-slate-50 py-12 px-4 relative">
       <div className="max-w-3xl mx-auto">
         {/* Progress Bar */}
         <div className="mb-10">
@@ -127,9 +159,18 @@ function SetupPage() {
           </div>
         </motion.div>
       </div>
+
+      {/* Gmail Connection Modal */}
+      <GmailConnectModal 
+        isOpen={showConnectModal}
+        onClose={() => navigate('/home')}
+        onConnect={handleConnectGmail}
+        loading={loading}
+      />
     </div>
   );
 }
+
 
 // --- Sub-components for steps ---
 

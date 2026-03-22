@@ -14,7 +14,7 @@ import { saveSettings, saveUserProfile, getUserSettings } from '../services/fire
 import DatePicker from 'react-datepicker';
 
 function SettingsPage() {
-  const { user, setAccessToken } = useAuthStore();
+  const { user } = useAuthStore();
   const { profile, settings, setSettings, setProfile } = useUserStore();
   const navigate = useNavigate();
   const location = useLocation();
@@ -181,15 +181,6 @@ function SettingsPage() {
                 type="text" 
                 value={localProfile.employeeId} 
                 onChange={e => setLocalProfile({...localProfile, employeeId: e.target.value})}
-                className="w-full mt-1 p-3 bg-slate-50 border border-slate-100 rounded-xl outline-none" 
-              />
-            </div>
-            <div>
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Department</label>
-              <input 
-                type="text" 
-                value={localProfile.department} 
-                onChange={e => setLocalProfile({...localProfile, department: e.target.value})}
                 className="w-full mt-1 p-3 bg-slate-50 border border-slate-100 rounded-xl outline-none" 
               />
             </div>

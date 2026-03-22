@@ -1,19 +1,24 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { User, Briefcase, Building, Send } from 'lucide-react';
+import { User, Briefcase, Send } from 'lucide-react';
 import { useAuthStore } from '../store/authStore';
 import { useUserStore } from '../store/userStore';
 import { saveUserProfile } from '../services/firestoreService';
 
 function OnboardingPage() {
-  const [fullName, setFullName] = useState('');
+  const { user } = useAuthStore();
+  const [fullName, setFullName] = useState(user?.displayName || '');
   const [employeeId, setEmployeeId] = useState('');
-  const [department, setDepartment] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { user } = useAuthStore();
   const { setProfile } = useUserStore();
+
+  useEffect(() => {
+    if (user?.displayName && !fullName) {
+      setFullName(user.displayName);
+    }
+  }, [user, fullName]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,7 +28,6 @@ function OnboardingPage() {
       const profileData = {
         fullName,
         employeeId,
-        department,
         email: user.email,
         onboardedAt: new Date().toISOString()
       };
@@ -80,24 +84,6 @@ function OnboardingPage() {
                 placeholder="EMP-123"
               />
             </div>
-
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5 flex items-center gap-2">
-                <Building size={16} className="text-teal-600" /> Department
-              </label>
-              <select
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-teal-500 outline-none transition-all"
-              >
-                <option value="">Select Department</option>
-                <option value="Engineering">Engineering</option>
-                <option value="Human Resources">Human Resources</option>
-                <option value="Manager">Manager</option>
-                <option value="Sales">Sales</option>
-                <option value="Marketing">Marketing</option>
-              </select>
-            </div>
           </div>
 
           <button
@@ -114,3 +100,4 @@ function OnboardingPage() {
 }
 
 export default OnboardingPage;
+
